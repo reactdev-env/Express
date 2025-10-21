@@ -4,22 +4,23 @@ const app = express();
 // Define a port
 const PORT = 3000;
 
-// Middleware to handle all routes
-app.use("/test",(req, res) => {
-  res.send("Hello from the server");
+app.use("/user",(req,res) => {
+    res.send("sequence of order matters")
 });
 
-app.use("/home",(req,res)=>{
-res.send("Welcome to the Home Page!")
+app.get("/user",(req,res) => {
+    res.send({firstName:"Pavan",lastName:"Sai"})
 });
 
-app.use("/Contactus",(req,res)=>{
-    res.send("Welcome to the contact us page");
+app.post("/user", (req,res)=>{
+    res.send("saved data to the database");
+
+});
+
+app.delete("/user", (req,res)=>{
+    res.send("Data has deleted successfully");
+
 })
-
-app.use("/cart",(req,res)=>{
-    res.send("welcome to the cart page");
-});
 
 // Start the server
 app.listen(PORT, () => {
