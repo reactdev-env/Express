@@ -12,6 +12,15 @@ app.get("/user",(req,res) => {
     res.send({firstName:"Pavan",lastName:"Sai"})
 });
 
+app.get("/abc",(req,res) => {    //optional routing 
+    res.send("abc")
+});
+
+app.get("/user/:userId",(req,res) => {
+    console.log(req.params);
+    res.send({firstName:"Pavan",lastName:"Sai"})
+});
+
 app.post("/user", (req,res)=>{
     res.send("saved data to the database");
 
