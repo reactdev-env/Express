@@ -1,37 +1,23 @@
 const express = require('express');
 const app = express();
-
-// Define a port
 const PORT = 3000;
 
-app.use("/user",(req,res) => {
-    res.send("sequence of order matters")
+const {adminAuth} = require("./middlewares/auth")
+
+// Middleware for /admin routes
+app.use("/admin", adminAuth);
+
+
+// Routes protected by middleware
+app.get("/admin/getAllData", (req, res) => {
+  res.send("All Data Sent Successfully");
 });
 
-app.get("/user",(req,res) => {
-    res.send({firstName:"Pavan",lastName:"Sai"})
+app.get("/admin/deleteUser", (req, res) => {
+  res.send("Deleted a User");
 });
 
-app.get("/abc",(req,res) => {    //optional routing 
-    res.send("abc")
-});
-
-app.get("/user/:userId",(req,res) => {
-    console.log(req.params);
-    res.send({firstName:"Pavan",lastName:"Sai"})
-});
-
-app.post("/user", (req,res)=>{
-    res.send("saved data to the database");
-
-});
-
-app.delete("/user", (req,res)=>{
-    res.send("Data has deleted successfully");
-
-})
-
-// Start the server
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server is successfully listening on Hello ${PORT}`);
+  console.log(`Server is successfully listening on port ${PORT}`);
 });
