@@ -2,21 +2,21 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 
-const {adminAuth, userAuth} = require("./middlewares/auth")
-
-// Middleware for /admin routes
-app.use("/admin", adminAuth);
-
-
-// Routes protected by middleware
-app.get("/admin/getAllData", (req, res) => {
-  res.send("All Data Sent Successfully");
-});
-
-app.get("/user/data",userAuth,(req,res)=>{
-    res.send("user data send")
+app.get("/userData",(req,res)=>{
+    // Logic of DB call and get User Data
+    try{
+throw new Error("hedyuhe");
+res.send("user data sent");
+    }
+    catch(err){
+res.status(500).send("some Error contact support team");
+    }
 })
-app.get("/admin/deleteUser", (req, res) => {
+
+app.use("/userData", (err,req, res,next) => {
+    if(err) {
+        res.status(500).send("Something went wrong")
+    }
   res.send("Deleted a User");
 });
 
