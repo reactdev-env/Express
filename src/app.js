@@ -17,10 +17,17 @@ const user = new User({
   password:"VK@456789"
 });
 
+//Best method always we need to use error handling
 
+try{
 await user.save();   //saving the user to the database
 res.send("User added successfully")   //getting the response back  
-})
+}catch(err){
+  res.status(400).send("Error adding user " + err.message)
+}
+});
+
+
 
 // Start server
 connectDB()
