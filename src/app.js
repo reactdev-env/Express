@@ -9,7 +9,7 @@ app.use(express.json());
 
 // 🧩 POST: Add new user (Signup)
 app.post('/signup', async (req, res) => {
-  // console.log(req.body); // For debugging
+   console.log(req.body); // For debugging
   const user = new User(req.body);
 
   try {
@@ -60,6 +60,52 @@ res.status(400).send("Something went wrong");
   }
 });
 
+
+// 🗑️ Delete API
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId; // Expecting the userId in request body
+
+  try {
+    // Delete user by ID
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).send("❌ User not found. Please check the ID.");
+    }
+
+    res.status(200).send("✅ User deleted successfully");
+  } catch (err) {
+    res.status(400).send("❌ Not able to delete the user. Error: " + err.message);
+  }
+});
+
+
+//Update data of the user
+
+// 🧩 Update data of the user
+app.patch("/user", async (req, res) => {
+  const userId = req.body.userId; // ID of the user to update
+  const data = req.body;          // Fields to update
+
+  try {
+    // ✅ Update the user by ID
+    const updatedUser = await User.findByIdAndUpdate(userId, data, {
+      new: true, // Return the updated user document
+      runValidators: true // Validate fields before updating
+    });
+
+    if (!updatedUser) {
+      return res.status(404).send("❌ User not found, please check the ID");
+    }
+
+    res.status(200).json({
+      message: "✅ User updated successfully",
+      updatedUser
+    });
+  } catch (err) {
+    res.status(400).send("❌ Something went wrong: " + err.message);
+  }
+});
 
 
 
