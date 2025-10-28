@@ -1,65 +1,82 @@
-const mongoose = require('mongoose');
-const validate = require("validator")
+const mongoose = require("mongoose");
+const validator = require("validator");
+const jwt = require("jsonwebtoken");
 
-const userSchema = new mongoose.Schema({
-    firstName:{
-        type:String,
-        required: true,
-        minLength:4,
-        maxLength:50
+// ⚠️ Use environment variables in production instead of hardcoding
+const JWT_SECRET = "mySuperSecretKey";
+
+const userSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
+      minLength: 4,
+      maxLength: 50,
     },
-    lastName:{
-        type:String
+    lastName: {
+      type: String,
     },
-    emailId:{
-        type:String,
-        required:true,
-        unique:true,
-        lowercase:true,
-        trim:true,
-        validate(value)
-        {
-if(!validate.isEmail(value)){
-    throw new Error("Invalid email address:", + value);
-}
+    emailId: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Invalid email address: " + value);
         }
+      },
     },
-    password:{
-        type:String,
-        required:true,
-        validate(value){   
-            if(!validate.isStrongPassword(value)) {
-                throw new Error ("Please enter the strong password" ,+value);
-            }
-            },
-    },
-    age:{ 
-        type:Number,
-        min:18,
-        max:100
-    },
-    gender:{
-        type:String,
-        validate(value){   //runs only when you create a new object in the document
-            if(!["male","female","others"]. includes(value)){
-                throw new Error("Gender data is not valid")
-            }
+    password: {
+      type: String,
+      required: true,
+      validate(value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Please enter a strong password: " + value);
         }
+      },
     },
-    photoUrl:{
-        type:String,
-        default:"https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.com%2Ficons%2Fimage&psig=AOvVaw1GsI7gqIQsjW2Rcf-LnQ9L&ust=1761592650205000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCNjEh5PKwpADFQAAAAAdAAAAABAE"
+    age: {
+      type: Number,
+      min: 18,
+      max: 100,
     },
-    skills:{
-        type:[String]
+    gender: {
+      type: String,
+      validate(value) {
+        if (!["male", "female", "others"].includes(value.toLowerCase())) {
+          throw new Error("Gender data is not valid: " + value);
+        }
+      },
     },
-    
-},
-{
-        timestamps:true,
-    })
+    photoUrl: {
+      type: String,
+      default: "https://cdn-icons-png.flaticon.com/512/149/149071.png", // cleaner image placeholder
+    },
+    skills: {
+      type: [String],
+    },
+  },
+  {
+    timestamps: true, // adds createdAt and updatedAt automatically
+  }
+);
 
+// 🧩 Instance Method to Generate JWT Token
+//These are known as userSchema methods, so we can write the passwod brcrypt also here to bcrypt the password for understanding 
+//I wrote in app.js
+userSchema.methods.getJWT = function () {
+  const user = this;
+  const token = jwt.sign(
+    { userId: user._id, emailId: user.emailId },
+    JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+  return token;
+};
 
-const User =  mongoose.model("user", userSchema);
-//const User1 = mongoose.model("user1", userSchema);
+// 🧩 Create Model
+const User = mongoose.model("User", userSchema);
+
 module.exports = User;

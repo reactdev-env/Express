@@ -70,11 +70,8 @@ app.post("/login", async (req, res) => {
     }
 
     // 3️⃣ Generate JWT
-    const token = jwt.sign(
-      { userId: user._id, emailId: user.emailId },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    const token = await user.getJWT();  //offloading this to the schema methods because we dont want to generate JWT token here.
+    //generating the JWt in the userschema  is the best practice so we can generate it there, cleaner code
 
     // 4️⃣ Store token in cookie
     res.cookie("token", token, {
