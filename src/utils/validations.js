@@ -1,7 +1,7 @@
-const validator = require('validator');
+const validator = require("validator");
 
-const validateSignUpData = (req) => {
-  const { firstName, lastName, emailId, password } = req.body;
+const validateSignUpData = (body) => {
+  const { firstName, lastName, emailId, password } = body;
 
   // 🧩 Check required fields
   if (!firstName || !lastName) {
@@ -20,10 +20,12 @@ const validateSignUpData = (req) => {
 
   // 🔐 Validate Password Strength
   if (!password || !validator.isStrongPassword(password)) {
-    throw new Error("❌ Please provide a strong password (min 8 chars, uppercase, lowercase, number, symbol)");
+    throw new Error(
+      "❌ Please provide a strong password (min 8 chars, uppercase, lowercase, number, symbol)"
+    );
   }
 
-  return true; // ✅ Everything is valid
+  return true;
 };
 
 module.exports = { validateSignUpData };
