@@ -1,7 +1,7 @@
 const validator = require("validator");
 
-const validateSignUpData = (body) => {
-  const { firstName, lastName, emailId, password } = body;
+const validateSignUpData = (req) => {
+  const { firstName, lastName, emailId, password } = req.body;
 
   // 🧩 Check required fields
   if (!firstName || !lastName) {
@@ -28,4 +28,28 @@ const validateSignUpData = (body) => {
   return true;
 };
 
-module.exports = { validateSignUpData };
+//Here the logoc for allowed fields to edit by the user //object keys are age,gender avi anni
+// utils/validations.js
+
+// 🧩 Function to validate which fields a user is allowed to edit
+const validateEditProfileData = (req) => {
+  const allowedEditFields = [
+    "firstName",
+    "lastName",
+    "emailId",
+    "age",
+    "gender",
+    "about",
+    "skills",
+  ];
+
+  // Check if all keys in req.body are within the allowed fields list
+  const isEditAllowed = Object.keys(req.body).every((field) =>
+    allowedEditFields.includes(field)
+  );
+
+  return isEditAllowed;
+};
+
+// ✅ Export the function so it can be imported elsewhere
+module.exports = { validateSignUpData,validateEditProfileData };
