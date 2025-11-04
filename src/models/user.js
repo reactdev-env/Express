@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
-// ⚠️ Use environment variables in production instead of hardcoding
-const JWT_SECRET = "mySuperSecretKey";
+// ⚠️ Use environment variables in production
+const JWT_SECRET = process.env.JWT_SECRET || "mySuperSecretKey";
 
 const userSchema = new mongoose.Schema(
   {
@@ -57,15 +58,15 @@ const userSchema = new mongoose.Schema(
     skills: {
       type: [String],
     },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   {
     timestamps: true, // adds createdAt and updatedAt automatically
   }
 );
 
-// 🧩 Instance Method to Generate JWT Token
-//These are known as userSchema methods, so we can write the passwod brcrypt also here to bcrypt the password for understanding 
-//I wrote in app.js
+// 🧩 Instance method to generate JWT token
 userSchema.methods.getJWT = function () {
   const user = this;
   const token = jwt.sign(
@@ -74,6 +75,21 @@ userSchema.methods.getJWT = function () {
     { expiresIn: "1h" }
   );
   return token;
+};
+
+// 🧩 Instance method to generate password reset token
+userSchema.methods.generatePasswordResetToken = function () {
+  const token = crypto.randomBytes(32).toString("hex");
+
+  // Save hashed token and expiry in DB
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+
+  this.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes validity
+
+  return token; // Return plain token (send this to user)
 };
 
 // 🧩 Create Model

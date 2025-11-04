@@ -4,6 +4,8 @@ const authRouter = express.Router();
 
 const { validateSignUpData } = require("../utils/validations");
 const User = require("../models/user");
+const {validateForgotPassword} = require("../utils/validations");
+const {validateResetPassword}= require("../utils/validations");
 
 // 🟩 SIGNUP ROUTE
 authRouter.post("/signup", async (req, res) => {
@@ -120,5 +122,73 @@ authRouter.post("/logout",async(req,res)=>{
   });
   res.send("logout successfull");
 })
+
+
+//Password RESET Route 
+authRouter.post("/forgotpassword", async (req, res) => {
+  try {
+    validateForgotPassword(req.body);
+    const { emailId } = req.body;
+
+    const user = await User.findOne({ emailId });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "❌ User not found" });
+    }
+
+    // Generate token and save
+    const resetToken = user.generatePasswordResetToken();
+    await user.save({ validateBeforeSave: false });
+
+    // TODO: Send resetToken via email (for now, log it)
+    console.log("🔗 Reset token:", resetToken);
+
+    res.status(200).json({
+      success: true,
+      message: "✅ Password reset token generated. (Check your email or console.)",
+      resetToken, // show token for testing
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+
+// 🟨 RESET PASSWORD
+authRouter.post("/resetpassword/:token", async (req, res) => {
+  try {
+    validateResetPassword(req.body);
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "❌ Invalid or expired reset token.",
+      });
+    }
+
+    // Hash and update new password
+    const bcrypt = require("bcrypt");
+    user.password = await bcrypt.hash(req.body.password, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "✅ Password reset successful. Please login again.",
+    });
+  } catch (err) {
+    res.status(400).json({ success: false, message: "❌ " + err.message });
+  }
+});
 
 module.exports = authRouter;

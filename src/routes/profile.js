@@ -3,6 +3,8 @@ const express = require("express");
 const profileRouter = express.Router();
 const { userAuth } = require("../middlewares/auth");
 const {validateEditProfileData} = require("../utils/validations");
+const {validateForgotPassword} = require("../utils/validations");
+const {validateResetPassword} = require("../utils/validations");
 
 // ✅ Protected profile route
 profileRouter.get("/profile/view", userAuth, async (req, res) => {

@@ -51,5 +51,22 @@ const validateEditProfileData = (req) => {
   return isEditAllowed;
 };
 
+
+//The validation to update the password
+const validateForgotPassword = (body) => {
+  if(!body.emailId||!validator.isEmail(body.emailId)){
+    throw new Error("please Enter a valid email address");
+}
+return true;
+}
+
+//Reset password
+const validateResetPassword = (body) =>{
+  if(!body.password || !validator.isStrongPassword(body.password)){
+    throw new Error("❌ Password must be strong (min 8 chars, upper, lower, number, symbol")
+  }
+  return true;
+}
+
 // ✅ Export the function so it can be imported elsewhere
-module.exports = { validateSignUpData,validateEditProfileData };
+module.exports = { validateSignUpData,validateEditProfileData, validateForgotPassword, validateResetPassword };
